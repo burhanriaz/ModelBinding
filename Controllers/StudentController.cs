@@ -4,6 +4,11 @@ using ModelBinding.Models;
 
 namespace ModelBinding.Controllers
 {
+    //[Route("api/[Controller]")]
+    //public class StudentController : ControllerBase
+    //{
+
+    // I have test with broswer and Postman 
     public class StudentController : Controller
     {
         private readonly AppDbContext _DbContext;
@@ -12,11 +17,15 @@ namespace ModelBinding.Controllers
         {
             _DbContext = dbContext;
         }
-
+        //FromFrom
+        //FromBody
+        //FromQuery
+        //FromHeader
+        //FromRoute
         public IActionResult Index()
         {
             var model = _DbContext.StudentInfo.ToList();
-            return View(model);
+            return Ok(model);
         }
         // Read data by using parameter in Method Argumet Id will pass from url as a query string
         //  https://localhost:44395/Student/ReadData?id=7
@@ -35,8 +44,6 @@ namespace ModelBinding.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateWithParameterQuerryString(int? Id, string Name, string Email, string Contact)
         {
-
-
             if (ModelState.IsValid)
             {
                 var student = new StudentInfo();
@@ -137,7 +144,7 @@ namespace ModelBinding.Controllers
             return RedirectToAction("Index");
         }
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //[Route("Create")]
+
         [HttpGet]
         public IActionResult Create()
         {
@@ -296,33 +303,31 @@ namespace ModelBinding.Controllers
 
         // Create with [FromRoute] Attribute
         // This link post in postman Url I have test this by using postman
-        //https://localhost:44395/Student/CreateWithFromRoute
-
-        
-      //  [HttpPost("{name}")]
-       [HttpPost]
-        public async Task<IActionResult> CreateWithFromRoute([FromRoute]  string name,[FromQuery] int? Id)
+        //https://localhost:44395/api/Student/CreateWithFromRoute/45/Burhan/burhan35@gmail.com/03203456678
+        [HttpPost]
+        [Route("CreateWithFromRoute/{Id?}/{Name}/{Email}/{Contact}")]
+        public async Task<IActionResult> CreateWithFromRoute([FromRoute] StudentInfo student)
         {
-            //if (ModelState.IsValid)
-            //{
-            //    if (student.Id == null)
-            //    {
-            //        await _DbContext.StudentInfo.AddAsync(student);
-            //    }
-            //    else
-            //    {
-            //        var model = await _DbContext.StudentInfo.FindAsync(Id);
-            //        if (model == null)
-            //            return NotFound("Id does Not Found");
-            //        model.Name = student.Name;
-            //        model.Email = student.Email;
-            //        model.Contact = student.Contact;
-            //        _DbContext.StudentInfo.Update(model);
+            if (ModelState.IsValid)
+            {
+                if (student.Id == null)
+                {
+                    await _DbContext.StudentInfo.AddAsync(student);
+                }
+                else
+                {
+                    var model = await _DbContext.StudentInfo.FindAsync(student.Id);
+                    if (model == null)
+                        return NotFound("Id does Not Found");
+                    model.Name = student.Name;
+                    model.Email = student.Email;
+                    model.Contact = student.Contact;
+                    _DbContext.StudentInfo.Update(model);
 
-            //    }
-            //    await _DbContext.SaveChangesAsync();
-            //    return RedirectToAction("Index");
-            //}
+                }
+                await _DbContext.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
 
             return RedirectToAction("Create");
 
